@@ -21,7 +21,7 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       // AppBar adalah bagian atas halaman yang menampilkan judul.
       appBar: AppBar(
-        // Judul aplikasi "Football News" dengan teks putih dan tebal.
+        // Judul aplikasi "Match Day" dengan teks putih dan tebal.
         title: const Text(
           'Football News',
           style: TextStyle(
