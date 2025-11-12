@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-// Import drawer widget
 import 'package:football_news/widgets/left_drawer.dart';
-import 'newslist_form.dart';
 import 'package:football_news/widgets/news_card.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
 
-  final String nama = "Lionel Messi"; //nama
-  final String npm = "2406275678"; //npm
-  final String kelas = "B"; //kelas
-
+  final String nama = "Naila Shafa Azizah"; //nama
+  final String npm = "2406356510"; //npm
+  final String kelas = "D"; //kelas
   final List<ItemHomepage> items = [
     ItemHomepage("See Football News", Icons.newspaper),
     ItemHomepage("Add News", Icons.add),
@@ -32,10 +29,7 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
         // Warna latar belakang AppBar diambil dari skema warna tema aplikasi.
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       drawer: LeftDrawer(),
       // Body halaman dengan padding di sekelilingnya.
@@ -140,4 +134,3 @@ class ItemHomepage {
 
   ItemHomepage(this.name, this.icon);
 }
-

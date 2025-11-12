@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-// TODO: Impor drawer yang sudah dibuat sebelumnya
 import 'package:football_news/widgets/left_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:football_news/screens/menu.dart';
 
 class NewsFormPage extends StatefulWidget {
   const NewsFormPage({super.key});
@@ -25,9 +28,9 @@ class _NewsFormPageState extends State<NewsFormPage> {
     'rumor',
     'analysis',
   ];
-
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -38,7 +41,6 @@ class _NewsFormPageState extends State<NewsFormPage> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
-      // TODO: Tambahkan drawer yang sudah dibuat di sini
       drawer: LeftDrawer(),
       body: Form(
         key: _formKey,
@@ -46,30 +48,30 @@ class _NewsFormPageState extends State<NewsFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:[
-            // === Title ===
-            Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Judul Berita",
-                labelText: "Judul Berita",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
+              // === Title ===
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Judul Berita",
+                    labelText: "Judul Berita",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _title = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Judul tidak boleh kosong!";
+                    }
+                    return null;
+                  },
                 ),
               ),
-              onChanged: (String? value) {
-                setState(() {
-                  _title = value!;
-                });
-              },
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return "Judul tidak boleh kosong!";
-                }
-                return null;
-              },
-            ),
-          ),
               // === Content ===
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -154,7 +156,6 @@ class _NewsFormPageState extends State<NewsFormPage> {
                   },
                 ),
               ),
-
               // === Tombol Simpan ===
               Align(
                 alignment: Alignment.bottomCenter,
@@ -165,39 +166,40 @@ class _NewsFormPageState extends State<NewsFormPage> {
                       backgroundColor:
                       MaterialStateProperty.all(Colors.indigo),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Berita berhasil tersimpan!'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Judul: $_title'),
-                                    Text('Isi: $_content'),
-                                    Text('Kategori: $_category'),
-                                    Text('Thumbnail: $_thumbnail'),
-                                    Text(
-                                        'Unggulan: ${_isFeatured ? "Ya" : "Tidak"}'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        // TODO: Replace the URL with your app's URL
+                        // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
+                        // If you using chrome,  use URL http://localhost:8000
+
+                        final response = await request.postJson(
+                          "http://localhost:8000/create-flutter/",
+                          jsonEncode({
+                            "title": _title,
+                            "content": _content,
+                            "thumbnail": _thumbnail,
+                            "category": _category,
+                            "is_featured": _isFeatured,
+                          }),
                         );
-                        _formKey.currentState!.reset();
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("News successfully saved!"),
+                            ));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Something went wrong, please try again."),
+                            ));
+                          }
+                        }
                       }
                     },
                     child: const Text(
@@ -207,12 +209,10 @@ class _NewsFormPageState extends State<NewsFormPage> {
                   ),
                 ),
               ),
-
-            ]
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
 }
-
